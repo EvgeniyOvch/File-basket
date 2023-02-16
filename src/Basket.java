@@ -1,10 +1,12 @@
 import java.io.*;
-import java.util.Arrays;
 
-public class Basket {
+public class Basket implements Serializable {
+
     private String[] products;
     private int[] prices;
+
     private int[] basketCount;
+    private static final long serialVersionUID = 1L;
 
 
     public Basket(String[] products, int[] prices) {
@@ -39,46 +41,30 @@ public class Basket {
         return sum;
     }
 
-    public void saveTxt(File textFile) throws IOException {
-        try (PrintWriter out = new PrintWriter(textFile)) {
-            for (String product : products)
-                out.print(product + " ");
-            out.println();
-            for (int price : prices)
-                out.print(price + " ");
-            out.println();
-            for (int count : basketCount)
-                out.print(count + " ");
+
+    public void saveBin(File file) {
+        try {
+            FileOutputStream outputStrem = new FileOutputStream("basket.bin");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStrem);
+            objectOutputStream.writeObject(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static Basket loadFromTxtFile(File textFile) {
-        try (FileReader reader = new FileReader(textFile)) {
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            while (bufferedReader.ready()) {
-                String[] product = bufferedReader.readLine().split(" ");
-                String[] prices1 = bufferedReader.readLine().split(" ");
-                String[] basketCount1 = bufferedReader.readLine().split(" ");
-                int[] price = new int[prices1.length];
-                for (int i = 0; i < prices1.length; i++) {
-                    price[i] = Integer.parseInt(prices1[i]);
-                }
-                int[] basketCount = new int[basketCount1.length];
-                for (int i = 0; i < basketCount1.length; i++) {
-                    basketCount[i] = Integer.parseInt(basketCount1[i]);
-                }
-
-                Basket basket = new Basket(product, basketCount);
-                basket.basketCount = basketCount;
-                return basket;
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public static Basket loadFromBinFile(File file) {
+        try (FileInputStream fileInputStream = new FileInputStream(file);
+             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+            Basket basket = (Basket) objectInputStream.readObject();
+            return basket;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
 
         return null;
     }
 }
+
 
 
 
