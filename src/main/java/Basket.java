@@ -2,7 +2,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.*;
-import java.util.Arrays;
 
 public class Basket {
     private String[] products;
@@ -24,7 +23,7 @@ public class Basket {
     }
 
     public void addToCart(int productNum, int amount) {
-        basketCount[productNum] += amount;
+        basketCount[productNum - 1] += amount;
     }
 
     public void printCart() {
@@ -42,7 +41,7 @@ public class Basket {
         return sum;
     }
 
-    public void saveTxt(File textFile) throws IOException {
+    public void saveTxt(String textFile) throws IOException {
         try (PrintWriter out = new PrintWriter(textFile)) {
             for (String product : products)
                 out.print(product + " ");
@@ -81,7 +80,8 @@ public class Basket {
 
         return null;
     }
-    public void saveToJson(File textfile) {
+
+    public void saveToJson(String textfile) {
         Gson gson = new Gson();
         Basket basket = new Basket(products, prices);
         try (Writer wr = new FileWriter(textfile)) {
@@ -91,16 +91,14 @@ public class Basket {
             throw new RuntimeException(e);
         }
     }
-    public void LoadFromJson(File textfile) {
+
+    public void LoadFromJson(File textfile) throws IOException {
         GsonBuilder gb = new GsonBuilder();
         Gson gson = gb.create();
         try (Reader reader = new FileReader(textfile)) {
             Basket basketFromJson = gson.fromJson(reader, Basket.class);
             basketFromJson.printCart();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
         }
     }
 }
